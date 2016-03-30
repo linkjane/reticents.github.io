@@ -1,1 +1,257 @@
-我上线了!!!!!!
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery-1.8.3.js"></script>
+    <script src="js/jquery.mousewheel.js"></script>
+    <script src="js/TweenMax.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            padding-top: 50px;
+        }
+        .wrapper {
+            position: relative;
+            width: 970px;
+            margin: 0 auto;
+        }
+        .wrapper ul{
+            width: 970px;
+            list-style: none;
+            height: 400px;
+            overflow: hidden;
+        }
+        
+        .wrapper ul li {
+            position: absolute;
+        }
+
+        .pre {
+            position: absolute;
+            width: 76px;
+            height: 112px;
+            left: 0;
+            top: 200px;
+            margin-top: -56px;
+            z-index: 5;
+            cursor: pointer;
+        }
+        .pre .ico1{
+            background: url(images/prev.png) no-repeat;
+            width: 76px;
+            height: 112px;
+            position: absolute;
+        }
+
+        .pre .text{
+            position: absolute;
+            width: 106px;
+            height: 112px;
+            background: url(images/prev_txt.png);
+            display: none;
+        }
+        .next {
+            position: absolute;
+            width: 76px;
+            height: 112px;
+            right: 0;
+            top: 200px;
+            margin-top: -56px;
+            z-index: 5;
+            cursor: pointer;
+        }
+        .next .ico1{
+            background: url(images/next.png) no-repeat;
+            width: 76px;
+            height: 112px;
+            position: absolute;
+        }
+
+        .next .text{
+            position: absolute;
+            width: 106px;
+            height: 112px;
+            background: url(images/next_txt.png);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div>
+
+    <div class="tweenType">
+        tween类型:<br />
+        <input type="radio" name="ra"  value="Linear"/> Linear
+        <input type="radio" name="ra"  value="Quadratic" /> Quadratic
+        <input type="radio" name="ra"  value="Cubic"/> Cubic
+        <input type="radio" name="ra"  value="Quartic"/> Quartic
+        <input type="radio" name="ra"  value="Quintic"/> Quintic
+        <input type="radio" name="ra"  value="Sinusoidal"/> Sinusoidal
+        <input type="radio" name="ra"  value="Exponential"/> Exponential
+        <input type="radio" name="ra"  value="Circular"/> Circular
+        <input type="radio" name="ra"  value="Elastic" checked/> Elastic
+        <input type="radio" name="ra"  value="Back"/> Back
+        <input type="radio" name="ra"  value="Bounce"/> Bounce
+    </div>
+    <div class="easeType">
+        ease类型:<br />
+        <input type="radio" name="r" value="easeIn"/> easeIn
+        <input type="radio" name="r" value="easeOut"/> easeOut
+        <input type="radio" name="r" value="easeInOut" checked/> easeInOut
+    </div>
+
+</div>
+<div class="wrapper">
+    <div class="pre">
+        <span class="ico1"></span>
+        <span class="ico"></span>
+        <span class="text"></span>
+    </div>
+    <div class="next">
+        <span class="ico1"></span>
+        <span class="ico"></span>
+        <span class="text"></span>
+    </div>
+    <ul class="imgList">
+    </ul>
+</div>
+<script>
+
+    var imgAni = {};
+        //初始化图片长度
+    imgAni.init = function(){
+        imgAni.$parent = $('.imgList');
+        imgAni.length = 7;
+        imgAni.pushImg($('.imgList'), 'images/', '.jpg', 680, 344);
+        imgAni.intiArr();
+        imgAni.event();
+        imgAni.easeType = $('input:checked', '.easeType').val();
+        imgAni.tweenType = $('input:checked', '.tweenType').val();
+    }
+    //在文档加载后执行
+    $( imgAni.init );
+
+    imgAni.event = function(){
+        var t = new TimelineMax();
+        $('.pre').mouseover(function(){
+            t.clear();
+            t.to('.pre .text', 1, {display: 'block', opacity: 1, left: '50px', ease: Elastic.easeOut})
+        }).mouseout(function(){
+            t.clear();
+            t.to('.pre .text', 1, {display: 'none', opacity: 0, left: '0', ease: Elastic.easeOut})
+        })
+
+        $('.next').mouseover(function(){
+            t.clear();
+            t.to('.next .text', 1, {display: 'block', opacity: 1, right: '50px', ease: Elastic.easeOut})
+        }).mouseout(function(){
+            t.clear();
+            t.to('.next .text', 1, {display: 'none', opacity: 0, right: '0', ease: Elastic.easeOut})
+        })
+
+
+        $('.pre').click(function(){
+                imgAni.arr.unshift( imgAni.arr.pop() );
+                imgAni.easeType = $('input:checked', '.easeType').val();
+                imgAni.tweenType = $('input:checked', '.tweenType').val();
+                imgAni.move();
+        })
+        $('.next').click(function(){
+            imgAni.arr.push( imgAni.arr.shift() );
+            imgAni.easeType = $('input:checked', '.easeType').val();
+            imgAni.tweenType = $('input:checked', '.tweenType').val();
+            imgAni.move();
+        })
+
+    }
+
+    imgAni.move = function(){
+        var t = new TimelineMax();
+        imgAni.$parent.children().each(function(i, v){
+            t.to(v, .5, {
+                opacity: imgAni.arr[i].opacity,
+                left: imgAni.arr[i].left,
+                top: imgAni.arr[i].top,
+                ease: imgAni.tweenType + '.' + imgAni.easeType
+            }, 0)
+            $(v).css('z-index', imgAni.arr[i].zIndex);
+            $(v).find('img').css('width', imgAni.arr[i].width);
+        })
+    }
+
+    imgAni.pushImg = function($parent, dir, extend, maxWidth, maxHeight){
+        for (var i = 1; i <= imgAni.length; i++){
+            var $li = $('<li>');
+            var $a = $('<a>');
+            $li.append($a);
+            var $img = $('<img />');
+            $a.append($img);
+            $parent.append($li);
+//          set img
+
+//            获得相对的left和top值
+            var relWidth = Math.floor( ($parent.width() - maxWidth) / 2 );
+            var relHeight = Math.floor( ($parent.height() - maxHeight) / 2);
+            var sacle = maxHeight / maxWidth;
+            var flag = Math.floor(imgAni.length / 2) ;
+            $img.attr('src', dir + i + extend);
+            if (i == flag){
+                $li.css({
+                    left: relWidth,
+                    top: relHeight,
+                    'z-index': 2
+                });
+                $img.css('width', maxWidth);
+            }else if ( i == flag -1 ){
+                $img.css({
+                    width: Math.floor( maxWidth / 4 * 3),
+                    height: Math.floor( maxHeight / 4  * 3)
+                })
+                $li.css({
+                    left: Math.floor( ( $parent.width() - maxWidth - $img.width() / 2 ) / 2 ),
+                    top: Math.floor( ( $parent.height() -  $img.height()) / 2),
+                    opacity: .5,
+                    'z-index': 1
+                })
+            }else if (i == flag + 1){
+                $img.css({
+                    width: Math.floor( maxWidth / 4 * 3),
+                    height: Math.floor( maxHeight / 4  * 3)
+                })
+                $li.css({
+                    right: Math.floor( ( $parent.width() - maxWidth - $img.width() / 2 ) / 2 ),
+                    top: Math.floor( ( $parent.height() -  $img.height()) / 2),
+                    opacity: .5,
+                    'z-index': 1
+                })
+            }else {
+                $li.css({
+                    opacity: 0
+                })
+            }
+        }
+    }
+//    存放图片信息的数组
+    imgAni.intiArr = function(){
+        imgAni.arr = [];
+        imgAni.$parent.children().each(function(i, v){
+            var o = new Object();
+            var $v = $(v);
+            o.width = $v.css('width');
+            o.top = v.offsetTop;
+            o.left = v.offsetLeft;
+            o.opacity = $v.css('opacity');
+            o.zIndex = $v.css('z-index');
+            imgAni.arr.push(o);
+        })
+        console.log(imgAni.arr);
+    }
+
+
+</script>
+</body>
+</html>
